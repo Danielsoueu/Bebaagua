@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lembrete de Água</title>
+    <link rel="icon" href="https://img.icons8.com/ios-filled/50/000000/water-drop.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #e0f7fa; /* Um azul clarinho */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #00796b; /* Um verde-azulado mais escuro */
+            margin-bottom: 25px;
+            font-size: 2.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"],
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #b2dfdb; /* Borda azul-claro */
+            border-radius: 6px;
+            font-size: 1.05em;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        button {
+            background-color: #00bcd4; /* Azul vibrante */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #0097a7; /* Um azul um pouco mais escuro ao passar o mouse */
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #00796b;
+            font-weight: 500;
+        }
+
+        #timerDisplay {
+            margin-top: 15px;
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #00796b;
+        }
+
+        .water-intake-display {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00796b;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* Estilos para a garrafa de água */
+        .water-bottle-container {
+            position: relative;
+            width: 100px; /* Largura da garrafa */
+            height: 200px; /* Altura da garrafa */
+            border: 4px solid #00796b;
+            border-radius: 10px 10px 50px 50px; /* Topo reto, base arredondada */
+            margin: 30px auto;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end; /* A água começa do fundo */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .water-level {
+            width: 100%;
+            height: 0%; /* Começa vazia */
+            background-color: #00bcd4; /* Cor da água */
+            transition: height 0.8s ease-out; /* Transição suave */
+            position: relative;
+            border-radius: 0 0 45px 45px; /* Bordas arredondadas na base da água */
+        }
+
+        .water-level-text {
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .water-bottle-container.filled .water-level-text {
+            opacity: 1;
+        }
+
+        .goal-message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #d1ecf1; /* Azul claro para a caixa da mensagem */
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            color: #0c5460;
+            font-size: 1.1em;
+            font-weight: 500;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Estilos para o histórico */
+        .history-section {
+            text-align: left;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .history-section h2 {
+            color: #00796b;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            max-height: 200px; /* Limita a altura para rolagem */
+            overflow-y: auto; /* Adiciona rolagem vertical */
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f8fcfd;
+        }
+
+        .history-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-item span {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .history-item .date {
+            color: #777;
+            font-size: 0.9em;
+        }
+
+        .history-item.completed {
+            background-color: #e6ffe6; /* Verde claro para dias com meta atingida */
+        }
+        .history-item.completed span {
+            color: #28a745; /* Cor mais escura para o texto verde */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-tint"></i> Lembrete de Água</h1>
+
+        <div class="section">
+            <label for="height">Sua Altura (cm):</label>
+            <input type="number" id="height" min="100" value="170" placeholder="Ex: 170">
+            <label for="weight">Seu Peso (kg):</label>
+            <input type="number" id="weight" min="30" value="70" placeholder="Ex: 70">
+            <button id="calculateGoalButton">Calcular Meta de Água</button>
+            <div id="goalMessage" class="goal-message" style="display: none;"></div>
+        </div>
+
+        <div class="section">
+            <label for="interval">Lembrar a cada (minutos):</label>
+            <input type="number" id="interval" min="1" value="1"> <button id="startButton">Iniciar Lembrete</button>
+            <div id="status"></div>
+            <div id="timerDisplay"></div>
+        </div>
+
+        <div class="section">
+            <label for="dailyGoal">Meta Diária (ml):</label>
+            <input type="number" id="dailyGoal" min="500" value="2000" readonly>
+            <label for="waterAmount">Quantidade para adicionar (ml):</label>
+            <input type="number" id="waterAmount" min="50" value="200">
+            <button id="addWaterButton">Beber Água</button>
+        </div>
+
+        <div class="section">
+            <label>Água bebida hoje:</label>
+            <div class="water-bottle-container" id="waterBottleContainer">
+                <div class="water-level" id="waterLevel">
+                    <span class="water-level-text" id="waterLevelText"></span>
+                </div>
+            </div>
+            <div class="water-intake-display" id="currentWaterIntake">0 ml</div>
+            <button id="resetWaterButton" style="background-color: #f44336; margin-top: 20px;">Redefinir Água Diária</button>
+        </div>
+
+        <div class="history-section">
+            <h2>Histórico Diário <i class="fas fa-history"></i></h2>
+            <ul id="dailyHistoryList" class="history-list">
+                <li class="history-item">Nenhum registro ainda.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let currentWaterAmount = 0;
+        let dailyWaterGoal = 2000;
+        let intervalMinutes = 1;
+        let timerCountdownId;
+        let timeRemaining = 0;
+        let notificationTimeoutId; // Renomeado para evitar confusão com setInterval
+
+        // Elementos HTML
+        const intervalInput = document.getElementById('interval');
+        const startButton = document.getElementById('startButton');
+        const statusDiv = document.getElementById('status');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const heightInput = document.getElementById('height');
+        const weightInput = document.getElementById('weight');
+        const calculateGoalButton = document.getElementById('calculateGoalButton');
+        const dailyGoalInput = document.getElementById('dailyGoal');
+        const waterAmountInput = document.getElementById('waterAmount');
+        const addWaterButton = document.getElementById('addWaterButton');
+        const currentWaterIntakeDisplay = document.getElementById('currentWaterIntake');
+        const waterBottleContainer = document.getElementById('waterBottleContainer');
+        const waterLevel = document.getElementById('waterLevel');
+        const waterLevelText = document.getElementById('waterLevelText');
+        const resetWaterButton = document.getElementById('resetWaterButton');
+        const goalMessageDiv = document.getElementById('goalMessage');
+        const dailyHistoryList = document.getElementById('dailyHistoryList');
+
+        // --- Funções de Notificação e Timer ---
+
+        // Função para registrar o Service Worker
+        async function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('service-worker.js');
+                    console.log('Service Worker: Registrado com sucesso!', registration);
+
+                    // Garante que o Service Worker está ativo e controlando a página
+                    if (registration.installing) {
+                        console.log('Service Worker: Instalação em andamento.');
+                    } else if (registration.waiting) {
+                        console.log('Service Worker: Já instalado, mas esperando ativação. Forçando ativação...');
+                        registration.waiting.postMessage('SKIP_WAITING'); // Mensagem para pular o waiting
+                    } else if (registration.active) {
+                        console.log('Service Worker: Ativo e controlando.');
+                    }
+
+                    // Se o Service Worker não estiver controlando a página, recarregue
+                    if (!navigator.serviceWorker.controller) {
+                        console.log('Service Worker: Não está controlando a página. Recarregando para assumir o controle...');
+                        window.location.reload();
+                    }
+
+                } catch (error) {
+                    console.error('Service Worker: Falha ao registrar ou ativar!', error);
+                    alert('Seu navegador não pôde registrar o Service Worker. As notificações podem não funcionar corretamente.');
+                }
+            } else {
+                console.warn('Service Worker: Seu navegador não suporta Service Workers.');
+                alert('Seu navegador não suporta Service Workers. As notificações interativas não funcionarão.');
+            }
+        }
+
+        // Função para solicitar permissão de notificação
+        async function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                console.warn("Notificação: Este navegador não suporta notificações de desktop.");
+                return false;
+            } else if (Notification.permission === "granted") {
+                console.log("Notificação: Permissão já concedida.");
+                return true;
+            } else if (Notification.permission !== "denied") {
+                const permission = await Notification.requestPermission();
+                if (permission === "granted") {
+                    console.log("Notificação: Permissão concedida.");
+                    return true;
+                } else {
+                    console.warn("Notificação: Permissão negada.");
+                    alert("Permissão para notificações negada. O lembrete não funcionará.");
+                    return false;
+                }
+            } else {
+                console.warn("Notificação: Permissão negada permanentemente.");
+                alert("A permissão para notificações foi negada. Por favor, habilite as notificações para este site nas configurações do seu navegador.");
+                return false;
+            }
+        }
+
+        // Função para agendar a notificação via Service Worker
+        async function scheduleNotification() {
+            const permissionGranted = await requestNotificationPermission();
+            if (!permissionGranted) {
+                console.warn('Notificação: Permissão não concedida, não agendando.');
+                return;
+            }
+
+            // Limpa qualquer agendamento e contador anterior
+            clearTimeout(notificationTimeoutId);
+            clearInterval(timerCountdownId);
+
+            intervalMinutes = parseInt(intervalInput.value); // Atualiza intervalMinutes
+            localStorage.setItem('intervalMinutes', intervalMinutes); // Salva o intervalo
+
+            const intervalMilliseconds = intervalMinutes * 60 * 1000;
+            if (intervalMilliseconds <= 0) {
+                console.error('Notificação: Intervalo de tempo inválido. Deve ser maior que 0.');
+                statusDiv.textContent = 'Erro: Intervalo inválido.';
+                startButton.disabled = false;
+                return;
+            }
+
+            statusDiv.textContent = `Lembrete ativo! Próxima notificação em ${intervalMinutes} minuto(s).`;
+            startButton.textContent = "Lembrete Ativo!";
+            startButton.disabled = true;
+
+            // Inicia o contador visual
+            startCountdown();
+
+            // Agenda a notificação real usando setTimeout
+            notificationTimeoutId = setTimeout(() => {
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        action: 'showNotification',
+                        options: {
+                            body: `Lembre-se de se hidratar! 🥤 Meta: ${dailyWaterGoal / 1000}L. Bebido: ${currentWaterAmount}ml.`,
+                            icon: "https://img.icons8.com/ios-filled/50/000000/water-drop.png",
+                            vibrate: [200, 100, 200],
+                            data: {
+                                amountToAdd: parseInt(waterAmountInput.value) || 200
+                            },
+                            actions: [
+                                { action: 'drink_water', title: 'Bebi Água', icon: 'https://img.icons8.com/ios-filled/50/000000/water-drop.png' },
+                                { action: 'later', title: 'Mais Tarde', icon: 'https://img.icons8.com/ios-filled/50/000000/time--v1.png' }
+                            ]
+                        }
+                    });
+                    console.log("Notificação: Mensagem de notificação enviada ao Service Worker.");
+                    // O timer visual e o agendamento real esperam a interação.
+                    clearInterval(timerCountdownId); // Para o contador visual aqui
+                    timerDisplay.textContent = "Aguardando interação...";
+                    startButton.disabled = false; // Permite reativar manualmente
+                } else {
+                    console.warn('Notificação: Service Worker não está ativo ou não suportado. Notificação direta do navegador.');
+                    // Fallback se SW não estiver pronto/suportado
+                    new Notification("Hora de Beber Água!", {
+                        body: `Lembre-se de se hidratar! 🥤 Meta: ${dailyWaterGoal / 1000}L. Bebido: ${currentWaterAmount}ml.`,
+                        icon: "https://img.icons8.com/ios-filled/50/000000/water-drop.png"
+                    });
+                     // Para fallback, reinicia o agendamento imediatamente
+                     scheduleNotification();
+                }
+            }, intervalMilliseconds);
+        }
+
+        // Função para iniciar o contador regressivo visual
+        function startCountdown() {
+            clearInterval(timerCountdownId);
+            timeRemaining = intervalMinutes * 60;
+
+            if (timeRemaining <= 0) {
+                 timerDisplay.textContent = "Próxima notificação em: 00:00";
+                 return;
+            }
+
+            timerDisplay.textContent = `Próxima notificação em: ${Math.floor(timeRemaining / 60).toString().padStart(2, '0')}:${(timeRemaining % 60).toString().padStart(2, '0')}`;
+
+            timerCountdownId = setInterval(() => {
+                if (timeRemaining > 0) {
+                    timeRemaining--;
+                    const minutes = Math.floor(timeRemaining / 60);
+                    const seconds = timeRemaining % 60;
+                    timerDisplay.textContent = `Próxima notificação em: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                } else {
+                    clearInterval(timerCountdownId);
+                    timerDisplay.textContent = "Notificação enviada! Aguardando interação..."; // Indica que a notificação foi enviada e espera clique
+                }
+            }, 1000);
+        }
+
+        // --- Funções de Cálculo e Controle de Água ---
+
+        function calculateDailyWaterGoal() {
+            const weight = parseFloat(weightInput.value);
+            const height = parseFloat(heightInput.value);
+
+            if (isNaN(weight) || weight <= 0) {
+                alert("Por favor, insira um peso válido e maior que zero para calcular a meta.");
+                return;
+            }
+
+            const calculatedGoal = Math.round(weight * 35);
+
+            dailyWaterGoal = calculatedGoal;
+            dailyGoalInput.value = dailyWaterGoal;
+
+            updateWaterDisplay();
+
+            goalMessageDiv.textContent = `Sua recomendação diária é de ${calculatedGoal / 1000} litros de água.`;
+            goalMessageDiv.style.display = 'block';
+
+            localStorage.setItem('userHeight', height);
+            localStorage.setItem('userWeight', weight);
+            localStorage.setItem('dailyWaterGoal', dailyWaterGoal);
+        }
+
+        function updateWaterDisplay() {
+            currentWaterIntakeDisplay.textContent = `${currentWaterAmount} ml`;
+
+            const percentage = (currentWaterAmount / dailyWaterGoal) * 100;
+            const waterHeight = Math.min(percentage, 100);
+
+            waterLevel.style.height = `${waterHeight}%`;
+            waterLevelText.textContent = `${Math.round(percentage)}%`;
+
+            if (waterHeight > 10) {
+                waterBottleContainer.classList.add('filled');
+            } else {
+                waterBottleContainer.classList.remove('filled');
+            }
+        }
+
+        function addWater(amount = parseInt(waterAmountInput.value) || 200) {
+            if (isNaN(amount) || amount <= 0) {
+                alert("Por favor, insira uma quantidade válida e maior que zero para adicionar.");
+                return;
+            }
+            currentWaterAmount += amount;
+            updateWaterDisplay();
+            localStorage.setItem('currentWaterAmount', currentWaterAmount);
+            saveDailyRecord();
+        }
+
+        function resetWater() {
+            if (confirm("Tem certeza que deseja redefinir a quantidade de água bebida para 0 ml?")) {
+                saveDailyRecord();
+                currentWaterAmount = 0;
+                localStorage.setItem('lastResetDate', new Date().toDateString());
+                updateWaterDisplay();
+                loadDailyHistory();
+            }
+        }
+
+        function getTodayDateString() {
+            const today = new Date();
+            return today.toDateString();
+        }
+
+        function saveDailyRecord() {
+            const todayDate = getTodayDateString();
+            let history = JSON.parse(localStorage.getItem('dailyWaterHistory')) || [];
+
+            let recordIndex = history.findIndex(record => record.date === todayDate);
+
+            if (recordIndex !== -1) {
+                history[recordIndex] = {
+                    date: todayDate,
+                    amount: currentWaterAmount,
+                    goal: dailyWaterGoal,
+                    completed: currentWaterAmount >= dailyWaterGoal
+                };
+            } else {
+                history.push({
+                    date: todayDate,
+                    amount: currentWaterAmount,
+                    goal: dailyWaterGoal,
+                    completed: currentWaterAmount >= dailyWaterGoal
+                });
+            }
+
+            if (history.length > 30) {
+                history = history.slice(history.length - 30);
+            }
+
+            localStorage.setItem('dailyWaterHistory', JSON.stringify(history));
+            loadDailyHistory();
+        }
+
+        function loadDailyHistory() {
+            let history = JSON.parse(localStorage.getItem('dailyWaterHistory')) || [];
+            dailyHistoryList.innerHTML = '';
+
+            if (history.length === 0) {
+                const li = document.createElement('li');
+                li.classList.add('history-item');
+                li.textContent = 'Nenhum registro ainda.';
+                dailyHistoryList.appendChild(li);
+                return;
+            }
+
+            history.reverse().forEach(record => {
+                const li = document.createElement('li');
+                li.classList.add('history-item');
+                if (record.completed) {
+                    li.classList.add('completed');
+                }
+
+                const dateSpan = document.createElement('span');
+                dateSpan.classList.add('date');
+                const dateObj = new Date(record.date);
+                dateSpan.textContent = dateObj.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+                const amountSpan = document.createElement('span');
+                amountSpan.textContent = `${record.amount}ml / ${record.goal}ml`;
+
+                li.appendChild(dateSpan);
+                li.appendChild(amountSpan);
+                dailyHistoryList.appendChild(li);
+            });
+        }
+
+        function loadSavedData() {
+            const savedHeight = localStorage.getItem('userHeight');
+            const savedWeight = localStorage.getItem('userWeight');
+            const savedWater = localStorage.getItem('currentWaterAmount');
+            const savedGoal = localStorage.getItem('dailyWaterGoal');
+            const savedInterval = localStorage.getItem('intervalMinutes');
+            const lastResetDate = localStorage.getItem('lastResetDate');
+            const today = getTodayDateString();
+
+            if (savedHeight) {
+                heightInput.value = savedHeight;
+            }
+            if (savedWeight) {
+                weightInput.value = savedWeight;
+                calculateDailyWaterGoal();
+            } else if (savedGoal) {
+                dailyWaterGoal = parseInt(savedGoal);
+                dailyGoalInput.value = dailyWaterGoal;
+                goalMessageDiv.textContent = `Sua recomendação diária é de ${dailyWaterGoal / 1000} litros de água.`;
+                goalMessageDiv.style.display = 'block';
+            }
+
+            if (savedInterval) {
+                intervalMinutes = parseInt(savedInterval);
+                intervalInput.value = intervalMinutes;
+            }
+
+            if (lastResetDate !== today) {
+                if (savedWater) {
+                    let history = JSON.parse(localStorage.getItem('dailyWaterHistory')) || [];
+                    history.push({
+                        date: lastResetDate || "Data Anterior Desconhecida",
+                        amount: parseInt(savedWater),
+                        goal: dailyWaterGoal,
+                        completed: parseInt(savedWater) >= dailyWaterGoal
+                    });
+                    if (history.length > 30) {
+                        history = history.slice(history.length - 30);
+                    }
+                    localStorage.setItem('dailyWaterHistory', JSON.stringify(history));
+                }
+                currentWaterAmount = 0;
+                localStorage.setItem('lastResetDate', today);
+            } else if (savedWater) {
+                currentWaterAmount = parseInt(savedWater);
+            }
+
+            updateWaterDisplay();
+            loadDailyHistory();
+        }
+
+        // --- Event Listeners ---
+
+        startButton.addEventListener('click', scheduleNotification);
+
+        calculateGoalButton.addEventListener('click', calculateDailyWaterGoal);
+        addWaterButton.addEventListener('click', () => addWater());
+        resetWaterButton.addEventListener('click', resetWater);
+
+        heightInput.addEventListener('change', calculateDailyWaterGoal);
+        weightInput.addEventListener('change', calculateDailyWaterGoal);
+
+        intervalInput.addEventListener('change', () => {
+            const newInterval = parseInt(intervalInput.value);
+            if (!isNaN(newInterval) && newInterval > 0) {
+                intervalMinutes = newInterval;
+                localStorage.setItem('intervalMinutes', intervalMinutes);
+                statusDiv.textContent = `Intervalo de notificação atualizado para ${intervalMinutes} minuto(s). Clique em "Iniciar Lembrete" para aplicar.`;
+                startButton.disabled = false; // Permite que o usuário reinicie o agendamento
+                clearInterval(notificationTimeoutId); // Cancela o timer antigo se estiver rodando
+                clearInterval(timerCountdownId); // Cancela o contador visual
+                timerDisplay.textContent = ""; // Limpa o display do timer
+            } else {
+                alert("Por favor, insira um número válido e maior que zero para o intervalo.");
+                intervalInput.value = intervalMinutes;
+            }
+        });
+
+        // Ouve mensagens do Service Worker
+        navigator.serviceWorker.addEventListener('message', event => {
+            console.log('Main App: Mensagem recebida do Service Worker:', event.data);
+            if (event.data && event.data.action) {
+                if (event.data.action === 'drinkWaterFromNotification') {
+                    console.log('Main App: Ação "Bebi Água" da notificação recebida.');
+                    addWater(event.data.amountToAdd);
+                    scheduleNotification(); // Reinicia o timer após beber água
+                } else if (event.data.action === 'laterFromNotification') {
+                    console.log('Main App: Ação "Mais Tarde" da notificação recebida.');
+                    scheduleNotification(); // Reinicia o timer para tentar novamente mais tarde
+                }
+            }
+        });
+
+        // Carrega os dados salvos e registra o Service Worker ao carregar a página
+        window.addEventListener('load', async () => {
+            loadSavedData();
+            await registerServiceWorker(); // Espera o SW ser registrado antes de continuar
+        });
+
+    </script>
+</body>
+</html>
